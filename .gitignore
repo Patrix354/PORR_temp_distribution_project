@@ -1,0 +1,16 @@
+src/__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+.venv/
+*.log
+*.out
+*.bak
+*.tmp
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
