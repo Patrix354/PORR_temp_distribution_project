@@ -1,5 +1,3 @@
-# Laplace Heat Solver (Python)
-
 ## Instalacja środowiska (Linux)
 
 ```bash
