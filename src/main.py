@@ -6,8 +6,8 @@ def main():
     eps = 0.000000000001
 
     while True:
-        diff = g._update_()
-        g._print_heatmap_()
+        diff = g.update()
+        g.print_heatmap()
         if diff < eps:
             input('Press any key to continue')
             break

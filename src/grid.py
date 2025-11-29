@@ -15,14 +15,14 @@ class Grid:
         self.x = np.linspace(0, 1, n)
         self.y = np.linspace(0, 1, n)
 
-        self._apply_boundary_conditions()
+        self.apply_boundary_conditions()
 
-    def _apply_boundary_conditions(self):
+    def apply_boundary_conditions(self):
         for j in range(self.n):
             y = self.y[j]
             self.T[0, j] = np.sin(np.pi * y)
 
-    def _print_heatmap_(self, delay=0.001):
+    def print_heatmap(self, delay=0.001):
         plt.ion()
         plt.clf()
         plt.imshow(self.T, cmap='viridis')

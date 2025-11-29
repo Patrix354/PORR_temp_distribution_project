@@ -6,7 +6,7 @@ class SequentialGrid(Grid):
     def __init__(self, n: int):
         super().__init__(n)
 
-    def _update_(self, omega=1.7):
+    def update(self, omega=1.7):
         max_diff = 0.0
 
         for i in range(1, self.n-1):
