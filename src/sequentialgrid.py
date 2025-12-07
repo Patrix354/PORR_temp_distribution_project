@@ -24,3 +24,34 @@ class SequentialGrid(Grid):
                     max_diff = diff
 
         return max_diff
+
+
+class AnalyticGrid(Grid):
+    def __init__(self, n: int, n_terms: int = 200):
+        super().__init__(n)
+        self.n_terms = n_terms
+
+    def compute(self):
+        h = 1.0 / (self.n - 1)
+
+        for i in range(self.n):
+            x = i * h
+            for j in range(self.n):
+                # węzły brzegowe są ustalone
+                if i == 0 or i == self.n - 1 or j == 0 or j == self.n - 1:
+                    continue
+
+                y = j * h
+                self.T[i, j] = self._T_analytic(x, y)
+
+    def _T_analytic(self, x: float, y: float):
+        s = 0.0
+        for n in range(1, self.n_terms + 1):
+            # parzyste
+            if n % 2 == 0:
+                continue
+            # nieparzyste
+            Cn = -8.0 / (n * np.pi * (n**2 - 4) * np.sinh(n * np.pi))
+            s += Cn * np.sinh(n * np.pi * (1.0 - x)) * np.sin(n * np.pi * y)
+
+        return s
