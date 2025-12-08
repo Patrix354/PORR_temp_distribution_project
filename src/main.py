@@ -4,7 +4,7 @@ import numpy as np
 from sequentialgrid import SequentialGrid, AnalyticGrid, ParallelGrid
 
 EPS = 1e-12
-N = 40
+N = 80
 
 
 def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
@@ -26,6 +26,7 @@ def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
 
 
 def main():
+    print(f"n = {N}")
     results = {}
     g_seq, t_seq, it_seq = run_until_convergence(
         SequentialGrid, n=N, eps=EPS, name="sequential"

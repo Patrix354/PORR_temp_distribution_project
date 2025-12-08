@@ -20,7 +20,7 @@ class Grid:
     def apply_boundary_conditions(self):
         for j in range(self.n):
             y = self.y[j]
-            self.T[0, j] = np.sin(np.pi * y)
+            self.T[0, j] = np.sin(np.pi * y)**2
 
     def print_heatmap(self, delay=0.001):
         plt.ion()

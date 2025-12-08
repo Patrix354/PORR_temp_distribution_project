@@ -91,7 +91,7 @@ class ParallelGrid(Grid):
                     new = (1.0 - omega) * old + omega * avg
                     T[i, j] = new
 
-    def update(self, omega=1.7):
+    def update(self, omega=0.96):
         T_old = self.T.copy()
         ParallelGrid._red_sweep(self.T, omega)
         ParallelGrid._black_sweep(self.T, omega)
