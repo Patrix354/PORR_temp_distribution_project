@@ -3,7 +3,7 @@
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install numpy matplotlib
+pip install numpy matplotlib numba
 ```
 ## Uruchomienie
 
