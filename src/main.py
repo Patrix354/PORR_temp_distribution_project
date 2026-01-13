@@ -1,14 +1,22 @@
 import time
 import numpy as np
-from matplotlib import pyplot as plt
-from sequentialgrid import SequentialGrid, AnalyticGrid, ParallelGrid
+import matplotlib.pyplot as plt
+
+from sequentialgrid import SequentialGrid, AnalyticGrid
+from parallalel_numba_solver import ParallelGrid
+from parralel_multiprocessing_solver import ParallelSolver
 
 EPS = 1e-12
-N = 160
+N = 200
+MAX_ITER_MULTIPROC = 100000
+
+class ResultWrapper:
+    def __init__(self, T_matrix):
+        self.T = T_matrix
 
 
-def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
-    print(f"=== Running {name or GridCls.__name__} ===")
+def run_iterative_solver(GridCls, n, eps, name):
+    print(f"Running {name}...")
     g = GridCls(n=n)
     iters = 0
     t0 = time.perf_counter()
@@ -18,46 +26,57 @@ def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
         if diff < eps:
             break
     t1 = time.perf_counter()
-    elapsed = t1 - t0
-    print(f"{name or GridCls.__name__}: "
-          f"time = {elapsed:.4f} s, iterations = {iters}")
-    print()
-    return g, elapsed, iters
+    return g, t1 - t0, iters
 
+
+def run_multiprocessing_solver(n, eps, name):
+    print(f"Running {name}...")
+    template = SequentialGrid(n=n)
+    solver = ParallelSolver(n=n, initial_grid=template.T)
+    T_result, duration, iters = solver.solve(n_procs=16, epsilon=eps, max_iter=MAX_ITER_MULTIPROC)
+    return ResultWrapper(T_result), duration, iters
+
+
+# --- MAIN ---
 
 def main():
-    print(f"n = {N}")
+    print(f"=== SIMULATION START (N={N}, EPS={EPS}) ===\n")
     results = {}
-    g_seq, t_seq, it_seq = run_until_convergence(
-        SequentialGrid, n=N, eps=EPS, name="sequential"
-    )
-    results["sequential"] = (g_seq, t_seq, it_seq)
-    g_par, t_par, it_par = run_until_convergence(
-        ParallelGrid, n=N, eps=EPS, name="parallel"
-    )
-    results["parallel"] = (g_par, t_par, it_par)
-    print("=== SUMMARY: EXECUTION TIMES AND ITERATIONS ===")
-    for name, (g, t, it) in results.items():
-        print(f"{name:10s} -> time = {t:.4f} s, iterations = {it}")
-    print()
+    results["Sequential"] = run_iterative_solver(SequentialGrid, N, EPS, "Sequential")
+    results["Parallel (Numba)"] = run_iterative_solver(ParallelGrid, N, EPS, "Parallel (Numba)")
+    results["Parallel (MultiProc)"] = run_multiprocessing_solver(N, EPS, "Parallel (MultiProc)")
+
+    print("\n" + "=" * 60)
+    print(f"{'METHOD':<25} | {'TIME (s)':<12} | {'ITERATIONS'}")
+    print("-" * 60)
+    for name, (grid, duration, iters) in results.items():
+        print(f"{name:<25} | {duration:<12.4f} | {iters}")
+    print("=" * 60 + "\n")
+    print("=== ERRORS VS ANALYTIC SOLUTION ===")
+
     ana = AnalyticGrid(n=N, n_terms=200)
     ana.compute()
-    print("=== ERRORS VS ANALYTIC SOLUTION ===")
-    for name, (g, t, it) in results.items():
-        diff = np.abs(g.T - ana.T)
-        print(f"max |T_{name} - T_analytic| = {diff.max()}")
 
-        diff_temp = g.T - ana.T
-        plt.ion()
-        plt.clf()
-        plt.imshow(diff_temp, cmap='viridis')
-        plt.colorbar()
-        plt.savefig(f"roznica_{name}_{N}.png")
-        plt.close()   
+    for name, (grid, duration, iters) in results.items():
+        diff_matrix = np.abs(grid.T - ana.T)
+        max_diff = diff_matrix.max()
+        print(f"max |T_{name:<20} - T_analytic| = {max_diff:.6e}")
 
-    diff_sp = np.abs(results["sequential"][0].T - results["parallel"][0].T)
-    print()
-    print("max |T_sequential - T_parallel| =", diff_sp.max())
+        plt.figure(figsize=(6, 5))
+        plt.title(f"Error Distribution: {name}\nN={N}, Max Error={max_diff:.2e}")
+        plt.imshow(grid.T - ana.T, cmap='viridis')  # Różnica ze znakiem
+        plt.colorbar(label='T_calc - T_analytic')
+        safe_name = name.replace(" ", "_").replace("(", "").replace(")", "")
+        plt.savefig(f"error_{safe_name}_{N}.png")
+        plt.close()
+
+    print("\n=== CROSS VALIDATION (Consistency Check) ===")
+    seq_grid = results["Sequential"][0]
+    for name, (grid, _, _) in results.items():
+        if name == "Sequential": continue
+        diff = np.abs(seq_grid.T - grid.T).max()
+        print(f"max |T_Sequential - T_{name:<18}| = {diff:.6e}")
+
 
 if __name__ == "__main__":
     main()
