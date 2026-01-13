@@ -7,7 +7,7 @@ from parallalel_numba_solver import ParallelGrid
 from parralel_multiprocessing_solver import ParallelSolver
 
 EPS = 1e-12
-N = 200
+N = 40
 MAX_ITER_MULTIPROC = 100000
 
 class ResultWrapper:
