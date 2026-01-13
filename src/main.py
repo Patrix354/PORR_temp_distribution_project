@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from sequentialgrid import SequentialGrid, AnalyticGrid, ParallelGrid
 
 EPS = 1e-12
-N = 40
+N = 160
 
 
 def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
