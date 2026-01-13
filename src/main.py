@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from sequentialgrid import SequentialGrid, AnalyticGrid, ParallelGrid
 
 EPS = 1e-12
-N = 320
+N = 160
 
 
 def run_until_convergence(GridCls, n=N, eps=EPS, name=""):
@@ -40,24 +40,24 @@ def main():
     for name, (g, t, it) in results.items():
         print(f"{name:10s} -> time = {t:.4f} s, iterations = {it}")
     print()
-    # ana = AnalyticGrid(n=N, n_terms=200)
-    # ana.compute()
-    # print("=== ERRORS VS ANALYTIC SOLUTION ===")
-    # for name, (g, t, it) in results.items():
-    #     diff = np.abs(g.T - ana.T)
-    #     print(f"max |T_{name} - T_analytic| = {diff.max()}")
+    ana = AnalyticGrid(n=N, n_terms=200)
+    ana.compute()
+    print("=== ERRORS VS ANALYTIC SOLUTION ===")
+    for name, (g, t, it) in results.items():
+        diff = np.abs(g.T - ana.T)
+        print(f"max |T_{name} - T_analytic| = {diff.max()}")
 
-    #     diff_temp = g.T - ana.T
-    #     plt.ion()
-    #     plt.clf()
-    #     plt.imshow(diff_temp, cmap='viridis')
-    #     plt.colorbar()
-    #     plt.savefig(f"roznica_{name}_{N}.png")
-    #     plt.close()   
+        diff_temp = g.T - ana.T
+        plt.ion()
+        plt.clf()
+        plt.imshow(diff_temp, cmap='viridis')
+        plt.colorbar()
+        plt.savefig(f"roznica_{name}_{N}.png")
+        plt.close()   
 
-    # diff_sp = np.abs(results["sequential"][0].T - results["parallel"][0].T)
-    # print()
-    # print("max |T_sequential - T_parallel| =", diff_sp.max())
+    diff_sp = np.abs(results["sequential"][0].T - results["parallel"][0].T)
+    print()
+    print("max |T_sequential - T_parallel| =", diff_sp.max())
 
 if __name__ == "__main__":
     main()
