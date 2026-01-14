@@ -9,8 +9,7 @@ class SequentialGrid(Grid):
         super().__init__(n)
 
     @staticmethod
-    @njit(parallel=False)
-    def _update(T, omega=1.7):
+    def _update(T, omega=0.96):
         max_diff = 0.0
         n = T.shape[0]
         for i in range(1, n-1):
@@ -23,7 +22,7 @@ class SequentialGrid(Grid):
                 new = (1 - omega) * old + omega * avg
                 T[i, j] = new
 
-    def update(self, omega=1.7):
+    def update(self, omega=0.96):
         T_old = self.T.copy()
         SequentialGrid._update(self.T, omega)
         inner_old = T_old[1:-1, 1:-1]
